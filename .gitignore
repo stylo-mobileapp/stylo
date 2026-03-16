@@ -1,2 +1,7 @@
-.env
+# Ignore data folder as requested
+backend/data/
 data/
+
+# Environment variables
+.env
+backend/.env
