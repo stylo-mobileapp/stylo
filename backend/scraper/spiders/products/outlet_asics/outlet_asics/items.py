@@ -6,8 +6,11 @@
 import scrapy
 
 
-def serialize_price(price: str) -> float:
-    return float(price)
+def serialize_price(price: str) -> float | None:
+    try:
+        return float(price)
+    except TypeError:
+        return None
 
 def serialize_variants(
     values: tuple[list[scrapy.Selector], str]
