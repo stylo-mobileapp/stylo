@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:frontend/core/secrets/secrets.dart';
+import 'package:frontend/core/services/fcm_service.dart';
 import 'package:frontend/core/theme/theme.dart';
 import 'package:frontend/core/widgets/auth_error_page.dart';
 import 'package:frontend/core/widgets/loading_page.dart';
@@ -46,6 +47,21 @@ class MyApp extends ConsumerStatefulWidget {
 }
 
 class _MyAppState extends ConsumerState<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    initFcmIfLoggedIn();
+  }
+
+  Future<void> initFcmIfLoggedIn() async {
+    final userId = ref.read(supabaseClientProvider).auth.currentUser?.id;
+    if (userId != null) {
+      try {
+        await ref.read(fcmServiceProvider).initFcm(userId);
+      } catch (_) {}
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CupertinoApp(

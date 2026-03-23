@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
+import 'package:frontend/core/providers/providers.dart';
+import 'package:frontend/core/services/fcm_service.dart';
 import 'package:frontend/core/utils/show_error_dialog.dart';
 import 'package:frontend/features/auth/repository/auth_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,6 +33,13 @@ class AuthController extends StateNotifier<bool> {
       brands: brands,
     );
     state = false;
-    response.fold((l) => showErrorDialog(context, l.message), (r) => null);
+    response.fold((l) => showErrorDialog(context, l.message), (r) async {
+      try {
+        final userId = ref.read(supabaseClientProvider).auth.currentUser?.id;
+        if (userId != null) {
+          await ref.read(fcmServiceProvider).initFcm(userId);
+        }
+      } catch (_) {}
+    });
   }
 }

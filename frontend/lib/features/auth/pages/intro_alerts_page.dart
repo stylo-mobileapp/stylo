@@ -1,16 +1,33 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
+import 'package:frontend/core/services/fcm_service.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
 import 'package:frontend/features/auth/pages/auth_page.dart';
 
-class IntroAlertsPage extends ConsumerWidget {
+class IntroAlertsPage extends ConsumerStatefulWidget {
   final VoidCallback signInAsGuest;
   const IntroAlertsPage({super.key, required this.signInAsGuest});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<IntroAlertsPage> createState() => _IntroAlertsPageState();
+}
+
+class _IntroAlertsPageState extends ConsumerState<IntroAlertsPage> {
+  bool isRequesting = false;
+
+  Future<void> onNextPressed() async {
+    if (isRequesting) return;
+    setState(() => isRequesting = true);
+
+    await ref.read(fcmServiceProvider).requestPermission();
+
+    widget.signInAsGuest();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     double height = Constants.height(context);
     double width = Constants.width(context);
     List<Map<String, String>> alerts = [
@@ -152,7 +169,7 @@ class IntroAlertsPage extends ConsumerWidget {
             Spacer(),
             CupertinoButton(
               padding: EdgeInsets.zero,
-              onPressed: signInAsGuest,
+              onPressed: onNextPressed,
               child: Container(
                 width: double.infinity,
                 padding: EdgeInsets.symmetric(vertical: height * 0.02),
