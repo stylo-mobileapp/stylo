@@ -5,6 +5,9 @@ import 'package:flutter_riverpod/legacy.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
+import 'package:frontend/features/home/pages/home_page.dart';
+import 'package:frontend/features/search/pages/search_page.dart';
+import 'package:frontend/features/wishlist/pages/wishlist_page.dart';
 
 final navigationPageIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -28,7 +31,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
         children: [
           IndexedStack(
             index: currentIndex,
-            children: [Container(), Container(), Container()],
+            children: [HomePage(), SearchPage(), WishlistPage()],
           ),
           Positioned(
             left: 0,
