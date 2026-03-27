@@ -1,20 +1,27 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
+import 'package:frontend/features/wishlist/controller/wishlist_controller.dart';
 import 'package:frontend/models/product_summary.dart';
+import 'package:overlay_support/overlay_support.dart';
 
-class ProductCard extends StatelessWidget {
+class ProductCard extends ConsumerWidget {
   final ProductSummary product;
 
   const ProductCard({super.key, required this.product});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     double height = Constants.height(context);
     double width = Constants.width(context);
     double spacing = Constants.horizontalSpacing(context);
+
+    final wishlistState = ref.watch(wishlistControllerProvider);
+    final isInWishlist =
+        wishlistState.value?.any((p) => p.id == product.id) ?? false;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -69,6 +76,29 @@ class ProductCard extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+            Spacer(),
+            CupertinoButton(
+              padding: EdgeInsets.zero,
+              minimumSize: Size.zero,
+              onPressed: () {
+                if (isInWishlist) {
+                  ref
+                      .read(wishlistControllerProvider.notifier)
+                      .removeProduct(product.id);
+                  _showWishlistSnackbar(context, false);
+                } else {
+                  ref
+                      .read(wishlistControllerProvider.notifier)
+                      .addProduct(product);
+                  _showWishlistSnackbar(context, true);
+                }
+              },
+              child: Icon(
+                isInWishlist ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                color: isInWishlist ? Palette.redColor : Palette.blackColor,
+                size: Constants.iconSize(context),
+              ),
+            ),
           ],
         ),
         SizedBox(height: height * 0.005),
@@ -91,4 +121,70 @@ class ProductCard extends StatelessWidget {
       ],
     );
   }
+}
+
+void _showWishlistSnackbar(BuildContext context, bool added) {
+  showOverlayNotification(
+    (context) {
+      double height = Constants.height(context);
+      return SafeArea(
+        child: Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: EdgeInsets.only(
+              bottom:
+                  Constants.horizontalSpacing(context) +
+                  height * 0.025 +
+                  MediaQuery.of(context).padding.bottom,
+              left: Constants.horizontalSpacing(context),
+              right: Constants.horizontalSpacing(context),
+            ),
+            child: DefaultTextStyle(
+              style: const TextStyle(decoration: TextDecoration.none),
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: Constants.horizontalSpacing(context),
+                  vertical: height * 0.015,
+                ),
+                decoration: BoxDecoration(
+                  color: Palette.blackColor,
+                  borderRadius: BorderRadius.circular(
+                    Constants.borderRadius(context),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      added
+                          ? "Item added to Wishlist"
+                          : "Item removed from Wishlist",
+                      style: TextStyle(
+                        color: Palette.whiteColor,
+                        fontSize: TextSizes.medium(context),
+                      ),
+                    ),
+                    Spacer(),
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.zero,
+                      onPressed: () {
+                        OverlaySupportEntry.of(context)?.dismiss();
+                      },
+                      child: Icon(
+                        CupertinoIcons.clear,
+                        color: Palette.whiteColor,
+                        size: Constants.iconSize(context) * 0.75,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    },
+    duration: const Duration(seconds: 3),
+    position: NotificationPosition.bottom,
+  );
 }
