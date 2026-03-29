@@ -4,6 +4,7 @@ import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
 import 'package:frontend/core/widgets/loading.dart';
+import 'package:frontend/navigation_page.dart';
 import 'package:frontend/features/home/controller/home_controller.dart';
 import 'package:frontend/features/home/controller/home_providers.dart';
 import 'package:frontend/features/home/widgets/home_section_widget.dart';
@@ -55,6 +56,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                     children: [
                       CupertinoButton(
                         padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
                         onPressed: () {},
                         child: Icon(
                           CupertinoIcons.bell,
@@ -72,6 +74,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       Spacer(),
                       CupertinoButton(
                         padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
                         onPressed: () {},
                         child: Icon(
                           CupertinoIcons.person,
@@ -80,13 +83,19 @@ class _HomePageState extends ConsumerState<HomePage> {
                       ),
                     ],
                   ),
-                  SizedBox(height: height * 0.01),
-                  AbsorbPointer(
-                    child: CupertinoSearchTextField(
-                      placeholder: "Search (e.g 'Asics Novablast 4')",
+                  SizedBox(height: height * 0.015),
+                  GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: () =>
+                        ref.read(navigationPageIndexProvider.notifier).state =
+                            1,
+                    child: AbsorbPointer(
+                      child: CupertinoSearchTextField(
+                        placeholder: "Search (e.g 'Asics Novablast 4')",
+                      ),
                     ),
                   ),
-                  SizedBox(height: height * 0.02),
+                  SizedBox(height: height * 0.01),
                 ],
               ),
             ),

@@ -22,7 +22,21 @@ class HomeController extends StateNotifier<AsyncValue<List<HomeSection>>> {
     try {
       final userId = ref.read(supabaseClientProvider).auth.currentUser!.id;
       final sections = <HomeSection>[];
-      final errors = <String>[];
+
+      // CALL CONSOLIDATED RPC
+      final homeContentResult = await homeRepository.getHomeContent(userId);
+
+      final Map<String, dynamic> data = homeContentResult.fold(
+        (failure) => throw Exception(failure.message),
+        (data) => data,
+      );
+
+      final List<String> userBrandNames = List<String>.from(
+        data['user_brands'] ?? [],
+      );
+      final List<String> topBrandNames = List<String>.from(
+        data['top_brands'] ?? [],
+      );
 
       // Add 'recently viewed' section configuration
       sections.add(
@@ -30,26 +44,6 @@ class HomeController extends StateNotifier<AsyncValue<List<HomeSection>>> {
           title: 'Curated Just for You',
           subtitle: 'Inspired by your recent browsing',
           type: HomeSectionType.recentlyViewed,
-        ),
-      );
-
-      final userBrandsFuture = homeRepository.getUserBrands(userId);
-      final topBrandsFuture = homeRepository.getTopBrands(count: 3);
-
-      final userBrandsResult = await userBrandsFuture;
-      final topBrandsResult = await topBrandsFuture;
-
-      final userBrandNames = <String>[];
-      userBrandsResult.fold(
-        (failure) => errors.add(failure.message),
-        (brands) => userBrandNames.addAll(brands),
-      );
-
-      final topBrandNames = <String>[];
-      topBrandsResult.fold(
-        (failure) => errors.add(failure.message),
-        (brands) => topBrandNames.addAll(
-          brands.where((b) => !userBrandNames.contains(b)),
         ),
       );
 
@@ -89,12 +83,6 @@ class HomeController extends StateNotifier<AsyncValue<List<HomeSection>>> {
           type: HomeSectionType.discounted,
         ),
       );
-
-      if (userBrandNames.isEmpty &&
-          topBrandNames.isEmpty &&
-          errors.isNotEmpty) {
-        throw Exception(errors.first);
-      }
 
       state = AsyncValue.data(sections);
     } catch (e, st) {

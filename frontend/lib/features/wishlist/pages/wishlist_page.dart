@@ -31,6 +31,7 @@ class WishlistPage extends ConsumerWidget {
                     children: [
                       CupertinoButton(
                         padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
                         onPressed: () {},
                         child: Icon(
                           CupertinoIcons.bell,
@@ -48,6 +49,7 @@ class WishlistPage extends ConsumerWidget {
                       Spacer(),
                       CupertinoButton(
                         padding: EdgeInsets.zero,
+                        minimumSize: Size.zero,
                         onPressed: () {},
                         child: Icon(
                           CupertinoIcons.person,

@@ -13,6 +13,21 @@ class HomeRepository {
   final SupabaseClient supabaseClient;
   HomeRepository(this.supabaseClient);
 
+  Future<Either<Failure, Map<String, dynamic>>> getHomeContent(
+    String userId,
+  ) async {
+    try {
+      final response = await supabaseClient.rpc(
+        'get_home_content',
+        params: {'p_user_id': userId},
+      );
+
+      return right(response as Map<String, dynamic>);
+    } catch (e) {
+      return left(Failure("Couldn't load home content."));
+    }
+  }
+
   Future<Either<Failure, List<ProductSummary>>> getRecentlyViewed(
     String userId,
   ) async {

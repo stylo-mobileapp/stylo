@@ -14,6 +14,29 @@ class SharedPreferencesController {
   Future<void> init() async {
     sharedPreferences = await SharedPreferences.getInstance();
   }
+
+  static const _recentSearchesKey = 'recent_searches';
+
+  List<String> getRecentSearches() {
+    return sharedPreferences.getStringList(_recentSearchesKey) ?? [];
+  }
+
+  Future<void> addRecentSearch(String query) async {
+    final searches = getRecentSearches();
+    searches.remove(query); // Remove if exists to put it at the beginning
+    searches.insert(0, query);
+    // Keep max 10
+    if (searches.length > 10) {
+      searches.removeLast();
+    }
+    await sharedPreferences.setStringList(_recentSearchesKey, searches);
+  }
+
+  Future<void> removeRecentSearch(String query) async {
+    final searches = getRecentSearches();
+    searches.remove(query);
+    await sharedPreferences.setStringList(_recentSearchesKey, searches);
+  }
 }
 
 final fetchAllBrandsProvider = FutureProvider<List<String>>((ref) async {

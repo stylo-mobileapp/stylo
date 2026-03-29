@@ -11,4 +11,5 @@ class Palette {
   static Color mediumGreyColor = greyColor.shade600;
   static Color softGreyColor = greyColor.shade200;
   static Color borderColor = greyColor.shade300;
+  static Color goldColor = Color(0xFF996F23);
 }

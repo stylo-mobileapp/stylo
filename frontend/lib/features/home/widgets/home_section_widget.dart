@@ -55,7 +55,7 @@ class HomeSectionWidget extends ConsumerWidget {
 
     return Column(
       children: [
-        SizedBox(height: height * 0.03),
+        SizedBox(height: height * 0.02),
         Container(height: height * 0.005, color: Palette.softGreyColor),
         SizedBox(height: height * 0.03),
         Container(
