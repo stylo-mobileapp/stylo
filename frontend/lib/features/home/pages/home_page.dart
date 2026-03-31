@@ -32,9 +32,12 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref.read(homeControllerProvider.notifier).loadHomeSections(),
-    );
+    final currentState = ref.read(homeControllerProvider);
+    if (currentState is! AsyncData) {
+      Future.microtask(
+        () => ref.read(homeControllerProvider.notifier).loadHomeSections(),
+      );
+    }
   }
 
   @override

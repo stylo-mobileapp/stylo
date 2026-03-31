@@ -10,7 +10,7 @@ import 'package:frontend/core/widgets/loading_page.dart';
 import 'package:frontend/features/auth/controller/auth_controller.dart';
 import 'package:frontend/features/auth/pages/auth_page.dart';
 import 'package:frontend/firebase_options.dart';
-import 'package:frontend/navigation_page.dart';
+import 'package:frontend/core/widgets/splash_page.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -84,7 +84,7 @@ class _MyAppState extends ConsumerState<MyApp> {
                 return AuthPage();
               }
 
-              return NavigationPage();
+              return SplashPage();
             },
             error: (error, stackTrace) =>
                 AuthErrorPage(message: error.toString()),
