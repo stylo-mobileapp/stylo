@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
+import 'package:frontend/features/product/pages/product_page.dart';
 import 'package:frontend/features/wishlist/controller/wishlist_controller.dart';
 import 'package:frontend/models/product_summary.dart';
 import 'package:overlay_support/overlay_support.dart';
@@ -23,107 +24,118 @@ class ProductCard extends ConsumerWidget {
     final isInWishlist =
         wishlistState.value?.any((p) => p.id == product.id) ?? false;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: (width - 3 * spacing) / 2,
-          height: (width - 3 * spacing) / 2,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(
-              Constants.borderRadius(context),
-            ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder: (context) => ProductPage(productId: product.id),
           ),
-          foregroundDecoration: BoxDecoration(
-            border: Border.all(color: Palette.borderColor),
-            borderRadius: BorderRadius.circular(
-              Constants.borderRadius(context),
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: CachedNetworkImage(
-            imageUrl: product.imageUrl,
-            errorWidget: (context, url, error) => SizedBox(),
-            placeholder: (context, url) => SizedBox(),
-          ),
-        ),
-        SizedBox(height: height * 0.01),
-        Row(
-          children: [
-            if (product.discountPercentage > 0) ...[
-              Text(
-                '${product.originalPrice} €',
-                style: TextStyle(
-                  fontSize: TextSizes.small(context),
-                  fontWeight: FontWeight.bold,
-                  decoration: TextDecoration.lineThrough,
-                ),
-              ),
-              SizedBox(width: width * 0.01),
-              Text(
-                '${product.price} €',
-                style: TextStyle(
-                  fontSize: TextSizes.small(context),
-                  fontWeight: FontWeight.bold,
-                  color: Palette.redColor,
-                ),
-              ),
-            ] else
-              Text(
-                '${product.price} €',
-                style: TextStyle(
-                  fontSize: TextSizes.small(context),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            Spacer(),
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              minimumSize: Size.zero,
-              onPressed: () {
-                if (isInWishlist) {
-                  ref
-                      .read(wishlistControllerProvider.notifier)
-                      .removeProduct(product.id);
-                  _showWishlistSnackbar(context, false);
-                } else {
-                  ref
-                      .read(wishlistControllerProvider.notifier)
-                      .addProduct(product);
-                  _showWishlistSnackbar(context, true);
-                }
-              },
-              child: Icon(
-                isInWishlist ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                color: isInWishlist ? Palette.redColor : Palette.blackColor,
-                size: Constants.iconSize(context),
+        );
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: (width - 3 * spacing) / 2,
+            height: (width - 3 * spacing) / 2,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(
+                Constants.borderRadius(context),
               ),
             ),
-          ],
-        ),
-        SizedBox(height: height * 0.005),
-        Text(
-          product.brand,
-          style: TextStyle(fontSize: TextSizes.small(context)),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        SizedBox(height: height * 0.005),
-        Text(
-          product.title,
-          style: TextStyle(
-            fontSize: TextSizes.small(context),
-            color: Palette.mediumGreyColor,
+            foregroundDecoration: BoxDecoration(
+              border: Border.all(color: Palette.borderColor),
+              borderRadius: BorderRadius.circular(
+                Constants.borderRadius(context),
+              ),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: CachedNetworkImage(
+              imageUrl: product.imageUrl,
+              errorWidget: (context, url, error) => SizedBox(),
+              placeholder: (context, url) => SizedBox(),
+            ),
           ),
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+          SizedBox(height: height * 0.01),
+          Row(
+            children: [
+              if (product.discountPercentage > 0) ...[
+                Text(
+                  '${product.originalPrice} €',
+                  style: TextStyle(
+                    fontSize: TextSizes.small(context),
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.lineThrough,
+                  ),
+                ),
+                SizedBox(width: width * 0.01),
+                Text(
+                  '${product.price} €',
+                  style: TextStyle(
+                    fontSize: TextSizes.small(context),
+                    fontWeight: FontWeight.bold,
+                    color: Palette.redColor,
+                  ),
+                ),
+              ] else
+                Text(
+                  '${product.price} €',
+                  style: TextStyle(
+                    fontSize: TextSizes.small(context),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              Spacer(),
+              CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: Size.zero,
+                onPressed: () {
+                  if (isInWishlist) {
+                    ref
+                        .read(wishlistControllerProvider.notifier)
+                        .removeProduct(product.id);
+                    showWishlistSnackbar(context, false);
+                  } else {
+                    ref
+                        .read(wishlistControllerProvider.notifier)
+                        .addProduct(product);
+                    showWishlistSnackbar(context, true);
+                  }
+                },
+                child: Icon(
+                  isInWishlist
+                      ? CupertinoIcons.heart_fill
+                      : CupertinoIcons.heart,
+                  color: isInWishlist ? Palette.redColor : Palette.blackColor,
+                  size: Constants.iconSize(context),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: height * 0.005),
+          Text(
+            product.brand,
+            style: TextStyle(fontSize: TextSizes.small(context)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: height * 0.005),
+          Text(
+            product.title,
+            style: TextStyle(
+              fontSize: TextSizes.small(context),
+              color: Palette.mediumGreyColor,
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
     );
   }
 }
 
-void _showWishlistSnackbar(BuildContext context, bool added) {
+void showWishlistSnackbar(BuildContext context, bool added) {
   showOverlayNotification(
     (context) {
       double height = Constants.height(context);

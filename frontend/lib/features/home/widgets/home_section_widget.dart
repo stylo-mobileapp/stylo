@@ -6,8 +6,10 @@ import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
 import 'package:frontend/features/home/controller/home_providers.dart';
 import 'package:frontend/features/home/widgets/product_card.dart';
+import 'package:frontend/features/product/pages/product_page.dart';
 import 'package:frontend/models/home_section.dart';
 import 'package:frontend/models/product_summary.dart';
+import 'package:frontend/features/product/pages/brand_products_page.dart';
 
 class HomeSectionWidget extends ConsumerWidget {
   final HomeSection section;
@@ -93,6 +95,47 @@ class HomeSectionWidget extends ConsumerWidget {
                 _buildMosaicGrid(context, products)
               else
                 _buildStandardGrid(context, products),
+
+              if (section.type == HomeSectionType.brand &&
+                  section.brandQuery != null &&
+                  products != null &&
+                  products.isNotEmpty) ...[
+                SizedBox(height: height * 0.03),
+                SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton(
+                    padding: EdgeInsets.zero,
+                    minimumSize: Size.zero,
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (context) =>
+                              BrandProductsPage(brand: section.brandQuery!),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(vertical: height * 0.015),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          Constants.borderRadius(context),
+                        ),
+                        border: Border.all(color: Palette.blackColor),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Shop all ${section.brandQuery}',
+                          style: TextStyle(
+                            fontSize: TextSizes.medium(context),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
@@ -101,23 +144,34 @@ class HomeSectionWidget extends ConsumerWidget {
   }
 
   Widget _buildImageBlock(BuildContext context, ProductSummary? product) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Palette.softGreyColor,
-        borderRadius: BorderRadius.circular(Constants.borderRadius(context)),
+    return GestureDetector(
+      onTap: product != null
+          ? () {
+              Navigator.of(context).push(
+                CupertinoPageRoute(
+                  builder: (context) => ProductPage(productId: product.id),
+                ),
+              );
+            }
+          : null,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Palette.softGreyColor,
+          borderRadius: BorderRadius.circular(Constants.borderRadius(context)),
+        ),
+        foregroundDecoration: BoxDecoration(
+          border: Border.all(color: Palette.borderColor),
+          borderRadius: BorderRadius.circular(Constants.borderRadius(context)),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: product == null
+            ? const SizedBox()
+            : CachedNetworkImage(
+                imageUrl: product.imageUrl,
+                errorWidget: (context, url, error) => const SizedBox(),
+                placeholder: (context, url) => const SizedBox(),
+              ),
       ),
-      foregroundDecoration: BoxDecoration(
-        border: Border.all(color: Palette.borderColor),
-        borderRadius: BorderRadius.circular(Constants.borderRadius(context)),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: product == null
-          ? const SizedBox()
-          : CachedNetworkImage(
-              imageUrl: product.imageUrl,
-              errorWidget: (context, url, error) => const SizedBox(),
-              placeholder: (context, url) => const SizedBox(),
-            ),
     );
   }
 

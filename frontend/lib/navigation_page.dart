@@ -18,6 +18,11 @@ class NavigationPage extends ConsumerStatefulWidget {
 
 class _NavigationPageState extends ConsumerState<NavigationPage> {
   late final CupertinoTabController _tabController;
+  final List<GlobalKey<NavigatorState>> _tabNavigatorKeys = [
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+    GlobalKey<NavigatorState>(),
+  ];
 
   @override
   void initState() {
@@ -52,7 +57,13 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
         onTap: (index) {
           final currentIndex = ref.read(navigationPageIndexProvider);
           if (currentIndex == index) {
-            if (index == 0) HomePage.scrollToTop();
+            // Pop to root first, then scroll to top if already at root
+            final navigatorState = _tabNavigatorKeys[index].currentState;
+            if (navigatorState != null && navigatorState.canPop()) {
+              navigatorState.popUntil((route) => route.isFirst);
+            } else if (index == 0) {
+              HomePage.scrollToTop();
+            }
           } else {
             ref.read(navigationPageIndexProvider.notifier).state = index;
           }
@@ -74,6 +85,7 @@ class _NavigationPageState extends ConsumerState<NavigationPage> {
       ),
       tabBuilder: (context, index) {
         return CupertinoTabView(
+          navigatorKey: _tabNavigatorKeys[index],
           builder: (context) {
             switch (index) {
               case 0:

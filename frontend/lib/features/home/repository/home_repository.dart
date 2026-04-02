@@ -36,7 +36,7 @@ class HomeRepository {
           .from('viewed_products')
           .select('product_id, products(${ProductSummary.selectColumns})')
           .eq('user_id', userId)
-          .order('created_at', ascending: false)
+          .order('updated_at', ascending: false)
           .limit(6);
 
       final products = (response as List).map((row) {
