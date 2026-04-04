@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/providers/providers.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final fcmServiceProvider = Provider(
   (ref) => FcmService(ref.read(supabaseClientProvider)),
@@ -36,6 +37,15 @@ class FcmService {
   }
 
   Future<void> initFcm(String userId) async {
+    await requestPermission();
+
+    await FirebaseMessaging.instance
+        .setForegroundNotificationPresentationOptions(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+
     final token = await getToken();
     if (token != null) {
       await saveTokenToSupabase(userId, token);
@@ -47,5 +57,26 @@ class FcmService {
         saveTokenToSupabase(userId, newToken);
       },
     );
+
+    // Handle clicks when app is in background
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+
+    // Handle clicks when app is terminated
+    final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+    if (initialMessage != null) {
+      _handleMessage(initialMessage);
+    }
+  }
+
+  Future<void> _handleMessage(RemoteMessage message) async {
+    final url = message.data['url'];
+    if (url != null) {
+      final uri = Uri.tryParse(url.toString());
+      if (uri != null) {
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        }
+      }
+    }
   }
 }

@@ -8,6 +8,7 @@ import 'package:frontend/navigation_page.dart';
 import 'package:frontend/features/home/controller/home_controller.dart';
 import 'package:frontend/features/home/controller/home_providers.dart';
 import 'package:frontend/features/home/widgets/home_section_widget.dart';
+import 'package:frontend/features/notifications/pages/notifications_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -60,7 +61,14 @@ class _HomePageState extends ConsumerState<HomePage> {
                       CupertinoButton(
                         padding: EdgeInsets.zero,
                         minimumSize: Size.zero,
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                            CupertinoPageRoute(
+                              builder: (context) => const NotificationsPage(),
+                              fullscreenDialog: true,
+                            ),
+                          );
+                        },
                         child: Icon(
                           CupertinoIcons.bell,
                           size: Constants.iconSize(context),

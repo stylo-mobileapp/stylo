@@ -7,6 +7,7 @@ import 'package:frontend/core/widgets/loading.dart';
 import 'package:frontend/features/wishlist/controller/wishlist_controller.dart';
 import 'package:frontend/features/home/widgets/product_card.dart';
 import 'package:frontend/features/wishlist/widgets/wishlist_sort_sheet.dart';
+import 'package:frontend/features/notifications/pages/notifications_page.dart';
 
 class WishlistPage extends ConsumerWidget {
   const WishlistPage({super.key});
@@ -32,7 +33,14 @@ class WishlistPage extends ConsumerWidget {
                       CupertinoButton(
                         padding: EdgeInsets.zero,
                         minimumSize: Size.zero,
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                            CupertinoPageRoute(
+                              builder: (context) => const NotificationsPage(),
+                              fullscreenDialog: true,
+                            ),
+                          );
+                        },
                         child: Icon(
                           CupertinoIcons.bell,
                           size: Constants.iconSize(context),
