@@ -21,7 +21,7 @@ class AuthPage extends ConsumerWidget {
         .read(authControllerProvider.notifier)
         .signInAsGuest(
           context: context,
-          gender: ref.read(authGenderProvider),
+          gender: ref.read(authGenderProvider) == "MENSWEAR" ? "Men" : "Women",
           brands: ref.read(authBrandsProvider),
         );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 final supabaseClientProvider = Provider((ref) => Supabase.instance.client);
 
@@ -47,4 +48,8 @@ final fetchAllBrandsProvider = FutureProvider<List<String>>((ref) async {
       .order("product_count", ascending: false);
 
   return (response as List).map((row) => row['name'] as String).toList();
+});
+
+final packageInfoProvider = FutureProvider<PackageInfo>((ref) async {
+  return await PackageInfo.fromPlatform();
 });
