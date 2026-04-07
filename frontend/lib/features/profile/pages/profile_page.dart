@@ -8,6 +8,7 @@ import 'package:frontend/features/profile/widgets/profile_list_item.dart';
 import 'package:frontend/features/profile/controller/profile_controller.dart';
 import 'package:frontend/features/profile/pages/edit_gender_page.dart';
 import 'package:frontend/features/profile/pages/edit_brands_page.dart';
+import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:in_app_review/in_app_review.dart';
 
@@ -106,7 +107,9 @@ class ProfilePage extends ConsumerWidget {
                 ),
                 SizedBox(height: height * 0.005),
                 Text(
-                  "Stylo member since Dec '25",
+                  userProfile != null
+                      ? "Stylo member since ${DateFormat("MMM ''yy").format(userProfile.createdAt)}"
+                      : "Stylo member since",
                   style: TextStyle(
                     fontSize: TextSizes.small(context),
                     color: Palette.mediumGreyColor,

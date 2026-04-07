@@ -7,26 +7,11 @@ import 'package:frontend/core/widgets/loading.dart';
 import 'package:frontend/features/notifications/controller/notifications_controller.dart';
 import 'package:frontend/features/notifications/widgets/notification_item.dart';
 
-class NotificationsPage extends ConsumerStatefulWidget {
+class NotificationsPage extends ConsumerWidget {
   const NotificationsPage({super.key});
 
   @override
-  ConsumerState<NotificationsPage> createState() => _NotificationsPageState();
-}
-
-class _NotificationsPageState extends ConsumerState<NotificationsPage> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(
-      () => ref
-          .read(notificationsControllerProvider.notifier)
-          .loadNotifications(),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final height = Constants.height(context);
     final notificationsState = ref.watch(notificationsControllerProvider);
 
@@ -172,10 +157,7 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
               Expanded(
                 child: Text(
                   "We can't find any updates on your tracked items right now",
-                  style: TextStyle(
-                    fontSize: TextSizes.large(context),
-                    height: 1.25,
-                  ),
+                  style: TextStyle(fontSize: TextSizes.large(context)),
                 ),
               ),
             ],
@@ -186,7 +168,6 @@ class _NotificationsPageState extends ConsumerState<NotificationsPage> {
             style: TextStyle(
               fontSize: TextSizes.medium(context),
               color: Palette.mediumGreyColor,
-              height: 1.5,
             ),
           ),
         ],
