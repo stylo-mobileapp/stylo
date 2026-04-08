@@ -1,17 +1,27 @@
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:frontend/core/constants/constants.dart';
 import 'package:frontend/core/text_sizes/text_sizes.dart';
 import 'package:frontend/core/theme/palette.dart';
-import 'package:frontend/features/search/controller/search_controller.dart';
 import 'package:frontend/features/search/models/search_filters.dart';
 
-class AllFiltersPage extends ConsumerWidget {
+class AllFiltersPage extends StatelessWidget {
   final VoidCallback onOpenBrands;
   final VoidCallback onOpenCategories;
   final VoidCallback onOpenGenders;
   final VoidCallback onOpenStores;
   final VoidCallback onOpenPrice;
+
+  /// Current filters value (read from the caller's provider).
+  final SearchFilters filters;
+
+  /// Called when the Sale toggle is changed.
+  final ValueChanged<bool> onSaleToggled;
+
+  /// Called when "Clear All" is tapped.
+  final VoidCallback onClearAll;
+
+  /// Whether to show the Brands filter row and count brands in totals.
+  final bool showBrands;
 
   const AllFiltersPage({
     super.key,
@@ -20,6 +30,10 @@ class AllFiltersPage extends ConsumerWidget {
     required this.onOpenGenders,
     required this.onOpenStores,
     required this.onOpenPrice,
+    required this.filters,
+    required this.onSaleToggled,
+    required this.onClearAll,
+    this.showBrands = true,
   });
 
   Widget _buildFilterRow({
@@ -36,10 +50,7 @@ class AllFiltersPage extends ConsumerWidget {
           horizontal: Constants.horizontalSpacing(context),
           vertical: Constants.height(context) * 0.02,
         ),
-        decoration: BoxDecoration(
-          color: Palette.backgroundColor,
-          // No bottom border or full border? The screenshot has no line separators
-        ),
+        decoration: BoxDecoration(color: Palette.backgroundColor),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -92,7 +103,7 @@ class AllFiltersPage extends ConsumerWidget {
 
   int _countActiveFilters(SearchFilters filters) {
     int count =
-        filters.brands.length +
+        (showBrands ? filters.brands.length : 0) +
         filters.categories.length +
         filters.genders.length +
         filters.sources.length;
@@ -104,11 +115,10 @@ class AllFiltersPage extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     double height = Constants.height(context);
     double width = Constants.width(context);
 
-    final filters = ref.watch(searchFiltersProvider);
     final filterCount = _countActiveFilters(filters);
 
     return CupertinoPageScaffold(
@@ -163,11 +173,12 @@ class AllFiltersPage extends ConsumerWidget {
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.only(top: height * 0.01),
                 children: [
-                  _buildFilterRow(
-                    context: context,
-                    label: "Brands",
-                    onTap: onOpenBrands,
-                  ),
+                  if (showBrands)
+                    _buildFilterRow(
+                      context: context,
+                      label: "Brands",
+                      onTap: onOpenBrands,
+                    ),
                   _buildFilterRow(
                     context: context,
                     label: "Categories",
@@ -194,12 +205,7 @@ class AllFiltersPage extends ConsumerWidget {
                     context: context,
                     label: "Sale",
                     value: filters.onlyDiscounted,
-                    onChanged: (val) {
-                      ref
-                          .read(searchFiltersProvider.notifier)
-                          .update((s) => s.copyWith(onlyDiscounted: val));
-                      ref.read(searchResultsProvider.notifier).search();
-                    },
+                    onChanged: onSaleToggled,
                   ),
                 ],
               ),
@@ -216,12 +222,7 @@ class AllFiltersPage extends ConsumerWidget {
                   Expanded(
                     child: CupertinoButton(
                       padding: EdgeInsets.zero,
-                      onPressed: () {
-                        // Clear all filters
-                        ref.read(searchFiltersProvider.notifier).state =
-                            const SearchFilters();
-                        ref.read(searchResultsProvider.notifier).search();
-                      },
+                      onPressed: onClearAll,
                       child: Container(
                         decoration: BoxDecoration(
                           color: Palette.backgroundColor,

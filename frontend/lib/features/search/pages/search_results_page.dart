@@ -10,6 +10,7 @@ import 'package:frontend/features/search/widgets/brands_filter_sheet.dart';
 import 'package:frontend/features/search/widgets/all_filters_page.dart';
 import 'package:frontend/features/search/widgets/filter_bottom_sheets.dart';
 import 'package:frontend/features/search/widgets/search_sort_sheet.dart';
+import 'package:frontend/features/search/models/search_filters.dart';
 
 class SearchResultsPage extends ConsumerStatefulWidget {
   const SearchResultsPage({super.key});
@@ -166,7 +167,7 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
     Navigator.of(context).push(
       CupertinoPageRoute(
         fullscreenDialog: true,
-        builder: (context) => AllFiltersPage(
+        builder: (_) => _AllFiltersPageWrapper(
           onOpenBrands: _openBrandsFilter,
           onOpenCategories: _openCategoriesFilter,
           onOpenGenders: _openGendersFilter,
@@ -533,6 +534,45 @@ class _SearchResultsPageState extends ConsumerState<SearchResultsPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AllFiltersPageWrapper extends ConsumerWidget {
+  final VoidCallback onOpenBrands;
+  final VoidCallback onOpenCategories;
+  final VoidCallback onOpenGenders;
+  final VoidCallback onOpenStores;
+  final VoidCallback onOpenPrice;
+
+  const _AllFiltersPageWrapper({
+    required this.onOpenBrands,
+    required this.onOpenCategories,
+    required this.onOpenGenders,
+    required this.onOpenStores,
+    required this.onOpenPrice,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(searchFiltersProvider);
+    return AllFiltersPage(
+      filters: filters,
+      onOpenBrands: onOpenBrands,
+      onOpenCategories: onOpenCategories,
+      onOpenGenders: onOpenGenders,
+      onOpenStores: onOpenStores,
+      onOpenPrice: onOpenPrice,
+      onSaleToggled: (val) {
+        ref
+            .read(searchFiltersProvider.notifier)
+            .update((s) => s.copyWith(onlyDiscounted: val));
+        ref.read(searchResultsProvider.notifier).search();
+      },
+      onClearAll: () {
+        ref.read(searchFiltersProvider.notifier).state = const SearchFilters();
+        ref.read(searchResultsProvider.notifier).search();
+      },
     );
   }
 }

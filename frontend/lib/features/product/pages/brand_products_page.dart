@@ -142,8 +142,8 @@ class _BrandProductsPageState extends ConsumerState<BrandProductsPage> {
     Navigator.of(context).push(
       CupertinoPageRoute(
         fullscreenDialog: true,
-        builder: (context) => AllFiltersPage(
-          onOpenBrands: () {}, // Omit brand filter as we're locked to a brand
+        builder: (_) => _BrandAllFiltersPageWrapper(
+          brand: widget.brand,
           onOpenCategories: _openCategoriesFilter,
           onOpenGenders: _openGendersFilter,
           onOpenStores: _openSourcesFilter,
@@ -672,6 +672,47 @@ class _BrandProductsPageState extends ConsumerState<BrandProductsPage> {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _BrandAllFiltersPageWrapper extends ConsumerWidget {
+  final String brand;
+  final VoidCallback onOpenCategories;
+  final VoidCallback onOpenGenders;
+  final VoidCallback onOpenStores;
+  final VoidCallback onOpenPrice;
+
+  const _BrandAllFiltersPageWrapper({
+    required this.brand,
+    required this.onOpenCategories,
+    required this.onOpenGenders,
+    required this.onOpenStores,
+    required this.onOpenPrice,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final filters = ref.watch(brandProductsFiltersProvider(brand));
+    return AllFiltersPage(
+      filters: filters,
+      showBrands: false,
+      onOpenBrands: () {},
+      onOpenCategories: onOpenCategories,
+      onOpenGenders: onOpenGenders,
+      onOpenStores: onOpenStores,
+      onOpenPrice: onOpenPrice,
+      onSaleToggled: (val) {
+        ref
+            .read(brandProductsFiltersProvider(brand).notifier)
+            .update((s) => s.copyWith(onlyDiscounted: val));
+        ref.read(brandProductsResultsProvider(brand).notifier).fetch();
+      },
+      onClearAll: () {
+        ref.read(brandProductsFiltersProvider(brand).notifier).state =
+            SearchFilters(brands: [brand]);
+        ref.read(brandProductsResultsProvider(brand).notifier).fetch();
+      },
     );
   }
 }
